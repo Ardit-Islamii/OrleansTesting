@@ -18,7 +18,6 @@ namespace OrleansTesting
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -71,6 +70,7 @@ namespace OrleansTesting
                 (
                     parts => parts.AddApplicationPart(typeof(BetGrain).Assembly).WithReferences()
                 );
+                siloBuilder.AddLogStorageBasedLogConsistencyProvider("testLogStorage");
                 siloBuilder.ConfigureEndpoints
                 (
                     siloPort: 11111,

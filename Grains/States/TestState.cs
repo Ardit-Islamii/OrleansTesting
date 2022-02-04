@@ -4,5 +4,9 @@
     public class TestState
     {
         public string Name { get; set; }
+        public TestState()
+        {
+            
+        }
     }
 }

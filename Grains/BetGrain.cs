@@ -1,11 +1,16 @@
 ﻿using Orleans;
+using Orleans.EventSourcing;
+using Orleans.Providers;
 using Orleans.Runtime;
+using Orleans.Storage;
+using OrleansTesting.Grains.Events;
 using OrleansTesting.Grains.States;
 using OrleansTesting.Interfaces;
 
 namespace OrleansTesting.Grains
 {
-    public class BetGrain : Grain, IBetGrain
+    [StorageProvider(ProviderName = "testStorage")]
+    public class BetGrain : JournaledGrain<TestState,TestEvent>, IBetGrain
     {
         private readonly IPersistentState<TestState> _test;
 
@@ -13,12 +18,20 @@ namespace OrleansTesting.Grains
         {
             _test = test;
         }
-        public Task<string> GetBetNameAsync() => Task.FromResult(_test.State.Name);
+
+        public async Task<string> GetBetNameAsync()
+        {
+            return await Task.FromResult(_test.State.Name);
+        }
+
         public async Task SetBetNameAsync(string name)
         {
             _test.State.Name = name;
-            await _test.WriteStateAsync();
+            RaiseEvent(new TestEvent(){GrainKey = this.GetPrimaryKeyString()});
+            await ConfirmEvents();
+            /*await _test.WriteStateAsync();*/
         }
+
         public Task<string> SayHello(string greeting)
         {
             return Task.FromResult($"Hello from: {greeting}");
