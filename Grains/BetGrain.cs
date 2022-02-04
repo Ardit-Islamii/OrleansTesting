@@ -9,6 +9,9 @@ using OrleansTesting.Interfaces;
 
 namespace OrleansTesting.Grains
 {
+    //Relates to the siloBuilder.AddLogStorageBasedLogConsistencyProvider("testLogStorage"); on Startup.cs
+    [LogConsistencyProvider(ProviderName = "testLogStorage")]
+    //Relates to the siloBuilder.AddAdoNetGrainStorage("testStorage", o => on Startup.cs
     [StorageProvider(ProviderName = "testStorage")]
     public class BetGrain : JournaledGrain<TestState,TestEvent>, IBetGrain
     {
@@ -21,15 +24,18 @@ namespace OrleansTesting.Grains
 
         public async Task<string> GetBetNameAsync()
         {
+            //Gets all the confirmed events - put breakpoint to view all the events that have happened to this grain
+            var allEvents = await RetrieveConfirmedEvents(0, Version);
             return await Task.FromResult(_test.State.Name);
         }
 
         public async Task SetBetNameAsync(string name)
         {
             _test.State.Name = name;
+            //Writes a new event and adds a new event to the list inside the db(orleansstorage - payloadjson) everytime.
             RaiseEvent(new TestEvent(){GrainKey = this.GetPrimaryKeyString()});
             await ConfirmEvents();
-            /*await _test.WriteStateAsync();*/
+            /*await _test.WriteStateAsync(); Commented out because RaiseEvent automatically writes state.*/
         }
 
         public Task<string> SayHello(string greeting)
