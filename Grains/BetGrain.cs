@@ -13,6 +13,7 @@ namespace OrleansTesting.Grains
     [LogConsistencyProvider(ProviderName = "testLogStorage")]
     //Relates to the siloBuilder.AddAdoNetGrainStorage("testStorage", o => on Startup.cs
     [StorageProvider(ProviderName = "testStorage")]
+    //JournaledGrain<TState, TEvent> takes two classes, a state class and an event class and both should be serializable in order for the JournaledGrain To work. Refer to docs for more since JournaledGrain can only be of <TState> but didn't get to understand that part.
     public class BetGrain : JournaledGrain<TestState,TestEvent>, IBetGrain
     {
         private readonly IPersistentState<TestState> _test;
